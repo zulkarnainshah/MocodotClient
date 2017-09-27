@@ -5,14 +5,44 @@ import { Header, InlineInput, Button } from './components/common';
 
 
 class App extends Component {
-  state = { serviceSectors: [] };
+  state = {
+    serviceSectors: [],
+    selectedServiceSectorID: null
+  };
 
   componentWillMount() {
     //TODO: Call GET serviceSector API
     axios.get('http://localhost:8080/serviceSector/get').then(
       response => {
-        this.setState({ serviceSector: response.data });
+        if (response.data.length > 0) {
+          this.setState({
+            serviceSectors: response.data,
+            selectedServiceSectorID: response.data[0].serviceSectorID
+          });
+        }
       }
+    );
+  }
+
+  renderPicker() {
+    return (
+      <Picker
+        selectedValue={this.state.selectedServiceSectorID}
+        style={{ height: 44 }}
+        itemStyle={{ height: 44, color: '#FFFFFF' }}
+        onValueChange={(itemValue, itemIndex) =>
+          this.setState({ selectedServiceSectorID: itemValue })}
+      >
+        {
+          this.state.serviceSectors.map(serviceSector =>
+            <Picker.Item
+              label={serviceSector.name}
+              value={serviceSector.serviceSectorID}
+              key={serviceSector.serviceSectorID}
+            />
+          )
+        }
+      </Picker>
     );
   }
 
@@ -29,14 +59,7 @@ class App extends Component {
           <InlineInput placeholder='Password' secureTextEntry />
           <InlineInput placeholder='Phone' keyboardType='phone-pad' />
           <Text style={styles.textStyle}>Pick a service sector</Text>
-          <Picker
-            selectedValue='Health'
-            style={{ height: 44 }}
-            itemStyle={{ height: 44, color: '#FFFFFF' }}
-          >
-            <Picker.Item label="Health" value="java" />
-            <Picker.Item label="Transport" value="js" />
-          </Picker>
+          { this.renderPicker() }
           <Button titleColor='#5e606b'> CONFIRM </Button>
         </ScrollView>
 
